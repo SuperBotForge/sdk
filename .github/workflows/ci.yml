@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  protocol:
+    name: Protocol
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Test protocol schemas
+        run: go test ./...
+
+  go-sdk:
+    name: Go SDK
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: go-sdk
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go-sdk/go.mod
+          cache-dependency-path: go-sdk/go.sum
+
+      - name: Test Go SDK
+        run: go test ./...
+
+      - name: Build Go SDK for WASI
+        run: GOOS=wasip1 GOARCH=wasm go build ./...

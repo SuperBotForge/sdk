@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "protocol/v*"
+      - "go-sdk/v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Validate and release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: |
+            go.sum
+            go-sdk/go.sum
+
+      - name: Test protocol schemas
+        run: go test ./...
+
+      - name: Test Go SDK
+        working-directory: go-sdk
+        run: go test ./...
+
+      - name: Build Go SDK for WASI
+        working-directory: go-sdk
+        run: GOOS=wasip1 GOARCH=wasm go build ./...
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: gh release create "$TAG_NAME" --title "$TAG_NAME" --generate-notes
