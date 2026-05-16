@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superbotgo.dev/schemas/protocol/v4/common.schema.json",
+  "title": "SuperBotGo Plugin Protocol v4 Common Types",
+  "$defs": {
+    "jsonValue": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "boolean" },
+        { "type": "number" },
+        { "type": "string" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/$defs/jsonValue" }
+        },
+        {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/jsonValue" }
+        }
+      ]
+    },
+    "jsonObject": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/jsonValue" }
+    },
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stringMap": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "base64Bytes": {
+      "type": "string",
+      "contentEncoding": "base64"
+    },
+    "logEntry": {
+      "type": "object",
+      "required": ["level", "msg"],
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["info", "error"]
+        },
+        "msg": { "type": "string" }
+      }
+    },
+    "option": {
+      "type": "object",
+      "required": ["label", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string" },
+        "labels": { "$ref": "#/$defs/stringMap" },
+        "value": { "type": "string" }
+      }
+    },
+    "fileRef": {
+      "type": "object",
+      "required": ["id", "name", "mime_type", "size", "file_type"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "mime_type": { "type": "string" },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "file_type": {
+          "type": "string",
+          "enum": ["photo", "document", "audio", "video", "voice", "sticker"]
+        }
+      }
+    },
+    "replyBlock": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["text", "mention", "file", "link", "image"]
+        },
+        "text": { "type": "string" },
+        "texts": { "$ref": "#/$defs/stringMap" },
+        "style": {
+          "type": "string",
+          "enum": ["plain", "header", "subheader", "code", "quote"]
+        },
+        "user_id": { "type": "string" },
+        "file_id": { "type": "string" },
+        "caption": { "type": "string" },
+        "url": { "type": "string" },
+        "label": { "type": "string" }
+      }
+    },
+    "httpResponseData": {
+      "type": "object",
+      "required": ["status_code", "body"],
+      "additionalProperties": false,
+      "properties": {
+        "status_code": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599
+        },
+        "headers": { "$ref": "#/$defs/stringMap" },
+        "body": { "type": "string" }
+      }
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "param": { "type": "string" },
+        "eq": { "type": "string" },
+        "neq": { "type": "string" },
+        "match": { "type": "string" },
+        "set": { "type": "boolean" },
+        "and": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/condition" }
+        },
+        "or": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/condition" }
+        },
+        "not": { "$ref": "#/$defs/condition" }
+      }
+    }
+  }
+}

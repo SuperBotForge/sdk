@@ -1,0 +1,123 @@
+{
+  "id": "demo",
+  "name": "Demo Plugin",
+  "version": "1.2.3",
+  "sdk_version": 4,
+  "supports_reconfigure": true,
+  "rpc_methods": [
+    {
+      "name": "lookup",
+      "description": "Lookup demo data"
+    }
+  ],
+  "triggers": [
+    {
+      "name": "start",
+      "type": "messenger",
+      "descriptions": {
+        "en": "Start",
+        "ru": "Старт"
+      },
+      "nodes": [
+        {
+          "type": "step",
+          "param": "mode",
+          "blocks": [
+            {
+              "type": "text",
+              "texts": {
+                "en": "Choose mode"
+              },
+              "style": "header"
+            },
+            {
+              "type": "options",
+              "prompts": {
+                "en": "Mode"
+              },
+              "options": [
+                {
+                  "label": "Today",
+                  "labels": {
+                    "en": "Today"
+                  },
+                  "value": "today"
+                }
+              ]
+            }
+          ],
+          "validation": "^(today|tomorrow)$",
+          "visible_when": {
+            "param": "enabled",
+            "neq": "false"
+          }
+        }
+      ]
+    },
+    {
+      "name": "webhook",
+      "type": "http",
+      "path": "/webhook",
+      "methods": ["POST"]
+    },
+    {
+      "name": "daily",
+      "type": "cron",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "name": "sync",
+      "type": "event",
+      "topic": "schedule.updated"
+    }
+  ],
+  "requirements": [
+    {
+      "type": "database",
+      "description": "Store demo data",
+      "name": "default"
+    },
+    {
+      "type": "http",
+      "description": "Fetch upstream data",
+      "name": "default",
+      "config": {
+        "type": "object",
+        "properties": {
+          "allowed_hosts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "plugin",
+      "target": "core"
+    }
+  ],
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "greeting": {
+        "type": "string"
+      }
+    }
+  },
+  "dependencies": [
+    {
+      "plugin": "core",
+      "version": ">=1.0.0"
+    }
+  ],
+  "migrations": [
+    {
+      "version": 1,
+      "description": "init",
+      "up": "CREATE TABLE demo(id text);",
+      "down": "DROP TABLE demo;"
+    }
+  ]
+}

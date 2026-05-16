@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superbotgo.dev/schemas/protocol/v4/plugin-meta.schema.json",
+  "title": "SuperBotGo Plugin Metadata",
+  "type": "object",
+  "required": ["id", "name", "version", "sdk_version"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "$ref": "common.schema.json#/$defs/nonEmptyString" },
+    "name": { "$ref": "common.schema.json#/$defs/nonEmptyString" },
+    "version": { "$ref": "common.schema.json#/$defs/nonEmptyString" },
+    "sdk_version": {
+      "type": "integer",
+      "const": 4
+    },
+    "supports_reconfigure": { "type": "boolean" },
+    "rpc_methods": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/rpcMethod" }
+    },
+    "triggers": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/trigger" }
+    },
+    "requirements": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/requirement" }
+    },
+    "config_schema": { "$ref": "common.schema.json#/$defs/jsonObject" },
+    "dependencies": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/dependency" }
+    },
+    "migrations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/migration" }
+    }
+  },
+  "$defs": {
+    "rpcMethod": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "common.schema.json#/$defs/nonEmptyString" },
+        "description": { "type": "string" }
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "required": ["name", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "common.schema.json#/$defs/nonEmptyString" },
+        "type": {
+          "type": "string",
+          "enum": ["http", "cron", "event", "messenger"]
+        },
+        "descriptions": { "$ref": "common.schema.json#/$defs/stringMap" },
+        "description": { "type": "string" },
+        "path": { "type": "string" },
+        "methods": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "schedule": { "type": "string" },
+        "topic": { "type": "string" },
+        "nodes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/node" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "http" } }
+          },
+          "then": { "required": ["path", "methods"] }
+        },
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "cron" } }
+          },
+          "then": { "required": ["schedule"] }
+        },
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "event" } }
+          },
+          "then": { "required": ["topic"] }
+        }
+      ]
+    },
+    "node": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["step", "branch", "conditional_branch"]
+        },
+        "param": { "type": "string" },
+        "blocks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/block" }
+        },
+        "validation": { "type": "string" },
+        "validate_fn": { "type": "string" },
+        "visible_when": { "$ref": "common.schema.json#/$defs/condition" },
+        "condition_fn": { "type": "string" },
+        "pagination": { "$ref": "#/$defs/pagination" },
+        "on_param": { "type": "string" },
+        "cases": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/node" }
+          }
+        },
+        "conditional_cases": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/conditionalCase" }
+        },
+        "default": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/node" }
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["text", "options", "dynamic_options", "link", "image"]
+        },
+        "text": { "type": "string" },
+        "texts": { "$ref": "common.schema.json#/$defs/stringMap" },
+        "style": {
+          "type": "string",
+          "enum": ["plain", "header", "subheader", "code", "quote"]
+        },
+        "prompt": { "type": "string" },
+        "prompts": { "$ref": "common.schema.json#/$defs/stringMap" },
+        "options": {
+          "type": "array",
+          "items": { "$ref": "common.schema.json#/$defs/option" }
+        },
+        "options_fn": { "type": "string" },
+        "url": { "type": "string" },
+        "label": { "type": "string" }
+      }
+    },
+    "pagination": {
+      "type": "object",
+      "required": ["page_size", "provider"],
+      "additionalProperties": false,
+      "properties": {
+        "prompt": { "type": "string" },
+        "prompts": { "$ref": "common.schema.json#/$defs/stringMap" },
+        "page_size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "provider": { "$ref": "common.schema.json#/$defs/nonEmptyString" }
+      }
+    },
+    "conditionalCase": {
+      "type": "object",
+      "required": ["nodes"],
+      "additionalProperties": false,
+      "properties": {
+        "condition": { "$ref": "common.schema.json#/$defs/condition" },
+        "condition_fn": { "type": "string" },
+        "nodes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/node" }
+        }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["database", "http", "kv", "notify", "events", "plugin", "file"]
+        },
+        "description": { "type": "string" },
+        "name": { "type": "string" },
+        "target": { "type": "string" },
+        "config": { "$ref": "common.schema.json#/$defs/jsonObject" }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "required": ["plugin", "version"],
+      "additionalProperties": false,
+      "properties": {
+        "plugin": { "$ref": "common.schema.json#/$defs/nonEmptyString" },
+        "version": { "$ref": "common.schema.json#/$defs/nonEmptyString" }
+      }
+    },
+    "migration": {
+      "type": "object",
+      "required": ["version", "description", "up"],
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "description": { "$ref": "common.schema.json#/$defs/nonEmptyString" },
+        "up": { "$ref": "common.schema.json#/$defs/nonEmptyString" },
+        "down": { "type": "string" }
+      }
+    }
+  }
+}

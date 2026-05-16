@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superbotgo.dev/schemas/protocol/v4/event-response.schema.json",
+  "title": "SuperBotGo Event Response",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["ok", "error"]
+    },
+    "error": { "type": "string" },
+    "reply_blocks": {
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/replyBlock" }
+    },
+    "data": { "$ref": "common.schema.json#/$defs/jsonValue" },
+    "logs": {
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/logEntry" }
+    }
+  }
+}

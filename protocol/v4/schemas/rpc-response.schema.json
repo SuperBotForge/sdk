@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superbotgo.dev/schemas/protocol/v4/rpc-response.schema.json",
+  "title": "SuperBotGo RPC Response",
+  "type": "object",
+  "required": ["status"],
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["ok", "error"]
+    },
+    "result": { "$ref": "common.schema.json#/$defs/base64Bytes" },
+    "error": { "type": "string" },
+    "logs": {
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/logEntry" }
+    }
+  }
+}

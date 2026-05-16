@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superbotgo.dev/schemas/protocol/v4/migrate-response.schema.json",
+  "title": "SuperBotGo Migrate Response",
+  "type": "object",
+  "required": ["status"],
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["ok", "error"]
+    },
+    "message": { "type": "string" }
+  }
+}

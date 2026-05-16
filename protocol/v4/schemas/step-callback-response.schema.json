@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superbotgo.dev/schemas/protocol/v4/step-callback-response.schema.json",
+  "title": "SuperBotGo Step Callback Response",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "options": {
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/option" }
+    },
+    "has_more": { "type": "boolean" },
+    "result": { "type": "boolean" },
+    "error": { "type": "string" }
+  }
+}

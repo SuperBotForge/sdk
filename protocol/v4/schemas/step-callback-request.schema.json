@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superbotgo.dev/schemas/protocol/v4/step-callback-request.schema.json",
+  "title": "SuperBotGo Step Callback Request",
+  "type": "object",
+  "required": ["callback", "user_id", "locale", "params", "page", "input"],
+  "additionalProperties": false,
+  "properties": {
+    "callback": { "$ref": "common.schema.json#/$defs/nonEmptyString" },
+    "user_id": { "type": "integer" },
+    "locale": { "type": "string" },
+    "params": { "$ref": "common.schema.json#/$defs/stringMap" },
+    "page": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "input": { "type": "string" }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superbotgo.dev/schemas/protocol/v4/reconfigure-request.schema.json",
+  "title": "SuperBotGo Reconfigure Request",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "previous_config": { "$ref": "common.schema.json#/$defs/jsonValue" },
+    "config": { "$ref": "common.schema.json#/$defs/jsonValue" }
+  }
+}

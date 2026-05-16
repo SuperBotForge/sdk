@@ -1,0 +1,12 @@
+{
+  "options": [
+    {
+      "label": "Today",
+      "labels": {
+        "en": "Today"
+      },
+      "value": "today"
+    }
+  ],
+  "has_more": false
+}

@@ -1,0 +1,6 @@
+{
+  "id": "demo",
+  "name": "Demo Plugin",
+  "version": "1.0.0",
+  "sdk_version": 5
+}

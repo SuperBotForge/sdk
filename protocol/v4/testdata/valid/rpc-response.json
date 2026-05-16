@@ -1,0 +1,10 @@
+{
+  "status": "ok",
+  "result": "gaJva8M=",
+  "logs": [
+    {
+      "level": "info",
+      "msg": "rpc handled"
+    }
+  ]
+}

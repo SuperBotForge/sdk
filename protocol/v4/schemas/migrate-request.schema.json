@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superbotgo.dev/schemas/protocol/v4/migrate-request.schema.json",
+  "title": "SuperBotGo Migrate Request",
+  "type": "object",
+  "required": ["old_version", "new_version"],
+  "additionalProperties": false,
+  "properties": {
+    "old_version": { "type": "string" },
+    "new_version": { "type": "string" }
+  }
+}

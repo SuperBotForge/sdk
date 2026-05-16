@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superbotgo.dev/schemas/protocol/v4/rpc-request.schema.json",
+  "title": "SuperBotGo RPC Request",
+  "type": "object",
+  "required": ["method"],
+  "additionalProperties": false,
+  "properties": {
+    "caller": { "type": "string" },
+    "method": { "$ref": "common.schema.json#/$defs/nonEmptyString" },
+    "params": { "$ref": "common.schema.json#/$defs/base64Bytes" }
+  }
+}

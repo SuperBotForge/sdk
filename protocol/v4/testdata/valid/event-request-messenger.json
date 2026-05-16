@@ -1,0 +1,26 @@
+{
+  "id": "evt-1",
+  "trigger_type": "messenger",
+  "trigger_name": "start",
+  "plugin_id": "demo",
+  "timestamp": 1710000000,
+  "data": {
+    "user_id": 42,
+    "channel_type": "telegram",
+    "chat_id": "chat-1",
+    "command_name": "start",
+    "params": {
+      "mode": "today"
+    },
+    "locale": "en",
+    "files": [
+      {
+        "id": "file-1",
+        "name": "schedule.pdf",
+        "mime_type": "application/pdf",
+        "size": 1024,
+        "file_type": "document"
+      }
+    ]
+  }
+}

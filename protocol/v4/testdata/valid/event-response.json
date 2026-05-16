@@ -1,0 +1,23 @@
+{
+  "status": "ok",
+  "reply_blocks": [
+    {
+      "type": "text",
+      "text": "Done",
+      "style": "plain"
+    }
+  ],
+  "data": {
+    "status_code": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": "{\"ok\":true}"
+  },
+  "logs": [
+    {
+      "level": "info",
+      "msg": "handled"
+    }
+  ]
+}

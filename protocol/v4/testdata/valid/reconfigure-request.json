@@ -1,0 +1,8 @@
+{
+  "previous_config": {
+    "greeting": "Hello"
+  },
+  "config": {
+    "greeting": "Hi"
+  }
+}

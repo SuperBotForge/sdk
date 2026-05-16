@@ -1,0 +1,8 @@
+{
+  "id": "evt-1",
+  "trigger_type": "websocket",
+  "trigger_name": "ws",
+  "plugin_id": "demo",
+  "timestamp": 1710000000,
+  "data": {}
+}

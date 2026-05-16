@@ -1,0 +1,23 @@
+{
+  "id": "evt-2",
+  "trigger_type": "http",
+  "trigger_name": "webhook",
+  "plugin_id": "demo",
+  "timestamp": 1710000100,
+  "data": {
+    "method": "POST",
+    "path": "/webhook",
+    "query": {
+      "debug": "1"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": "{\"ok\":true}",
+    "remote_addr": "203.0.113.10",
+    "auth": {
+      "kind": "service",
+      "service_key_id": 7
+    }
+  }
+}

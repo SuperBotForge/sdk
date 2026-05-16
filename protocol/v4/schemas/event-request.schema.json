@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superbotgo.dev/schemas/protocol/v4/event-request.schema.json",
+  "title": "SuperBotGo Event Request",
+  "type": "object",
+  "required": ["id", "trigger_type", "trigger_name", "plugin_id", "timestamp", "data"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string" },
+    "trigger_type": {
+      "type": "string",
+      "enum": ["http", "cron", "event", "messenger"]
+    },
+    "trigger_name": { "type": "string" },
+    "plugin_id": { "type": "string" },
+    "timestamp": { "type": "integer" },
+    "data": { "$ref": "common.schema.json#/$defs/jsonObject" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "trigger_type": { "const": "messenger" } },
+        "required": ["trigger_type"]
+      },
+      "then": {
+        "properties": { "data": { "$ref": "#/$defs/messengerData" } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "trigger_type": { "const": "http" } },
+        "required": ["trigger_type"]
+      },
+      "then": {
+        "properties": { "data": { "$ref": "#/$defs/httpData" } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "trigger_type": { "const": "cron" } },
+        "required": ["trigger_type"]
+      },
+      "then": {
+        "properties": { "data": { "$ref": "#/$defs/cronData" } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "trigger_type": { "const": "event" } },
+        "required": ["trigger_type"]
+      },
+      "then": {
+        "properties": { "data": { "$ref": "#/$defs/eventData" } }
+      }
+    }
+  ],
+  "$defs": {
+    "messengerData": {
+      "type": "object",
+      "required": ["user_id", "channel_type", "chat_id", "command_name", "locale"],
+      "additionalProperties": false,
+      "properties": {
+        "user_id": { "type": "integer" },
+        "channel_type": { "type": "string" },
+        "chat_id": { "type": "string" },
+        "command_name": { "type": "string" },
+        "params": { "$ref": "common.schema.json#/$defs/stringMap" },
+        "locale": { "type": "string" },
+        "files": {
+          "type": "array",
+          "items": { "$ref": "common.schema.json#/$defs/fileRef" }
+        }
+      }
+    },
+    "httpData": {
+      "type": "object",
+      "required": ["method", "path"],
+      "additionalProperties": false,
+      "properties": {
+        "method": { "type": "string" },
+        "path": { "type": "string" },
+        "query": { "$ref": "common.schema.json#/$defs/stringMap" },
+        "headers": { "$ref": "common.schema.json#/$defs/stringMap" },
+        "body": { "type": "string" },
+        "remote_addr": { "type": "string" },
+        "auth": { "$ref": "#/$defs/httpAuth" }
+      }
+    },
+    "httpAuth": {
+      "type": "object",
+      "required": ["kind"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["user", "service"]
+        },
+        "user_id": { "type": "integer" },
+        "service_key_id": { "type": "integer" }
+      }
+    },
+    "cronData": {
+      "type": "object",
+      "required": ["schedule_name", "fire_time"],
+      "additionalProperties": false,
+      "properties": {
+        "schedule_name": { "type": "string" },
+        "fire_time": { "type": "integer" }
+      }
+    },
+    "eventData": {
+      "type": "object",
+      "required": ["topic", "payload", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "topic": { "type": "string" },
+        "payload": { "$ref": "common.schema.json#/$defs/jsonValue" },
+        "source": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "callback": "start.mode.options",
+  "user_id": 42,
+  "locale": "en",
+  "params": {
+    "mode": "today"
+  },
+  "page": 0,
+  "input": ""
+}
