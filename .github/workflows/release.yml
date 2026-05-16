@@ -9,9 +9,59 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  release:
-    name: Validate and release
+  detect:
+    name: Detect release
+    runs-on: ubuntu-latest
+
+    outputs:
+      component: ${{ steps.detect.outputs.component }}
+      version: ${{ steps.detect.outputs.version }}
+      protocol-dir: ${{ steps.detect.outputs.protocol-dir }}
+      artifact-name: ${{ steps.detect.outputs.artifact-name }}
+
+    steps:
+      - name: Detect component from tag
+        id: detect
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          case "$TAG_NAME" in
+            protocol/v*)
+              version="${TAG_NAME#protocol/v}"
+              major="${version%%.*}"
+              component="protocol"
+              protocol_dir="protocol/v${major}"
+              artifact_name="superbotgo-protocol-${version}.tar.gz"
+              ;;
+            go-sdk/v*)
+              version="${TAG_NAME#go-sdk/v}"
+              component="go-sdk"
+              protocol_dir=""
+              artifact_name="superbotgo-go-sdk-${version}.tar.gz"
+              ;;
+            *)
+              echo "Unsupported release tag: $TAG_NAME" >&2
+              exit 1
+              ;;
+          esac
+
+          {
+            echo "component=$component"
+            echo "version=$version"
+            echo "protocol-dir=$protocol_dir"
+            echo "artifact-name=$artifact_name"
+          } >> "$GITHUB_OUTPUT"
+
+  protocol:
+    name: Protocol validation
+    needs: detect
     runs-on: ubuntu-latest
 
     steps:
@@ -22,23 +72,142 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
-          cache-dependency-path: |
-            go.sum
-            go-sdk/go.sum
+          cache-dependency-path: go.sum
 
       - name: Test protocol schemas
         run: go test ./...
 
-      - name: Test Go SDK
+      - name: Check protocol release directory
+        if: needs.detect.outputs.component == 'protocol'
+        env:
+          PROTOCOL_DIR: ${{ needs.detect.outputs.protocol-dir }}
+        run: test -d "$PROTOCOL_DIR"
+
+      - name: Package protocol release
+        if: needs.detect.outputs.component == 'protocol'
+        env:
+          PROTOCOL_DIR: ${{ needs.detect.outputs.protocol-dir }}
+          ARTIFACT_NAME: ${{ needs.detect.outputs.artifact-name }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          tar -czf "dist/${ARTIFACT_NAME}" protocol/README.md "$PROTOCOL_DIR"
+
+      - name: Upload protocol release artifact
+        if: needs.detect.outputs.component == 'protocol' && env.ACT != 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-package
+          path: dist/${{ needs.detect.outputs.artifact-name }}
+          if-no-files-found: error
+
+  go-sdk:
+    name: Go SDK validation
+    needs: detect
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
         working-directory: go-sdk
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go-sdk/go.mod
+          cache-dependency-path: go-sdk/go.sum
+
+      - name: Verify module path
+        run: test "$(go list -m)" = "github.com/SuperBotForge/sdk/go-sdk"
+
+      - name: Test Go SDK
         run: go test ./...
 
       - name: Build Go SDK for WASI
-        working-directory: go-sdk
         run: GOOS=wasip1 GOARCH=wasm go build ./...
+
+      - name: Package Go SDK release
+        if: needs.detect.outputs.component == 'go-sdk'
+        env:
+          ARTIFACT_NAME: ${{ needs.detect.outputs.artifact-name }}
+        run: |
+          set -euo pipefail
+          mkdir -p ../dist
+          tar -czf "../dist/${ARTIFACT_NAME}" .
+
+      - name: Upload Go SDK release artifact
+        if: needs.detect.outputs.component == 'go-sdk' && env.ACT != 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-package
+          path: dist/${{ needs.detect.outputs.artifact-name }}
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs:
+      - detect
+      - protocol
+      - go-sdk
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Download release package
+        uses: actions/download-artifact@v8
+        with:
+          name: release-package
+          path: dist
 
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG_NAME: ${{ github.ref_name }}
-        run: gh release create "$TAG_NAME" --title "$TAG_NAME" --generate-notes
+        run: gh release create "$TAG_NAME" dist/* --title "$TAG_NAME" --generate-notes
+
+  notify:
+    name: Notify release
+    needs:
+      - detect
+      - release
+    if: always()
+    runs-on: ubuntu-latest
+
+    env:
+      RELEASE_WEBHOOK_URL: ${{ secrets.RELEASE_WEBHOOK_URL }}
+
+    steps:
+      - name: Skip notification
+        if: env.RELEASE_WEBHOOK_URL == ''
+        run: echo "RELEASE_WEBHOOK_URL is not configured; skipping notification."
+
+      - name: Send release notification
+        if: env.RELEASE_WEBHOOK_URL != ''
+        env:
+          COMPONENT: ${{ needs.detect.outputs.component }}
+          VERSION: ${{ needs.detect.outputs.version }}
+          RELEASE_RESULT: ${{ needs.release.result }}
+          RELEASE_URL: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          text="SuperBotGo ${COMPONENT} ${VERSION} release ${RELEASE_RESULT}: ${RELEASE_URL}"
+          payload="$(jq -n \
+            --arg text "$text" \
+            --arg component "$COMPONENT" \
+            --arg version "$VERSION" \
+            --arg status "$RELEASE_RESULT" \
+            --arg release_url "$RELEASE_URL" \
+            --arg run_url "$RUN_URL" \
+            '{text: $text, component: $component, version: $version, status: $status, release_url: $release_url, run_url: $run_url}')"
+
+          curl -fsS \
+            -H "content-type: application/json" \
+            -d "$payload" \
+            "$RELEASE_WEBHOOK_URL"
