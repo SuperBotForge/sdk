@@ -1,0 +1,162 @@
+name: Release Go SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Go SDK version without prefix, for example 0.4.1"
+        required: true
+        type: string
+      prerelease:
+        description: "Mark the GitHub release as prerelease"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-go-sdk-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Go SDK release
+    runs-on: ubuntu-latest
+
+    env:
+      RELEASE_WEBHOOK_URL: ${{ secrets.RELEASE_WEBHOOK_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Prepare release version
+        id: prepare
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          version="${INPUT_VERSION#v}"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Go SDK version must look like 0.4.1 or 0.4.1-rc.1: $INPUT_VERSION" >&2
+            exit 1
+          fi
+
+          tag_name="go-sdk/v${version}"
+          artifact_name="superbotgo-go-sdk-${version}.tar.gz"
+
+          if git ls-remote --exit-code --tags origin "refs/tags/${tag_name}" >/dev/null 2>&1; then
+            echo "Tag already exists: ${tag_name}" >&2
+            exit 1
+          fi
+
+          {
+            echo "version=$version"
+            echo "tag-name=$tag_name"
+            echo "artifact-name=$artifact_name"
+            echo "release-title=Go SDK v${version}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go-sdk/go.mod
+          cache-dependency-path: |
+            go.sum
+            go-sdk/go.sum
+
+      - name: Verify protocol module tidy
+        run: |
+          go mod tidy
+          git diff --exit-code go.mod go.sum
+
+      - name: Test protocol schemas
+        run: go test ./...
+
+      - name: Verify Go SDK module path
+        working-directory: go-sdk
+        run: test "$(go list -m)" = "github.com/SuperBotForge/sdk/go-sdk"
+
+      - name: Verify Go SDK module tidy
+        working-directory: go-sdk
+        run: |
+          go mod tidy
+          git diff --exit-code go.mod go.sum
+
+      - name: Test Go SDK
+        working-directory: go-sdk
+        run: go test ./...
+
+      - name: Build Go SDK for WASI
+        working-directory: go-sdk
+        run: GOOS=wasip1 GOARCH=wasm go build ./...
+
+      - name: Package Go SDK release
+        env:
+          ARTIFACT_NAME: ${{ steps.prepare.outputs.artifact-name }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          tar -czf "dist/${ARTIFACT_NAME}" go-sdk README.md
+
+      - name: Create GitHub release
+        if: env.ACT != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ steps.prepare.outputs.tag-name }}
+          RELEASE_TITLE: ${{ steps.prepare.outputs.release-title }}
+          ARTIFACT_NAME: ${{ steps.prepare.outputs.artifact-name }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          set -euo pipefail
+
+          flags=()
+          if [ "$PRERELEASE" = "true" ]; then
+            flags+=(--prerelease)
+          fi
+
+          gh release create "$TAG_NAME" "dist/${ARTIFACT_NAME}" \
+            --target "$GITHUB_SHA" \
+            --title "$RELEASE_TITLE" \
+            --generate-notes \
+            "${flags[@]}"
+
+      - name: Skip GitHub release under act
+        if: env.ACT == 'true'
+        run: echo "ACT=true; skipping GitHub release publish."
+
+      - name: Skip notification
+        if: always() && env.RELEASE_WEBHOOK_URL == ''
+        run: echo "RELEASE_WEBHOOK_URL is not configured; skipping notification."
+
+      - name: Send release notification
+        if: always() && env.RELEASE_WEBHOOK_URL != ''
+        env:
+          VERSION: ${{ steps.prepare.outputs.version }}
+          TAG_NAME: ${{ steps.prepare.outputs.tag-name }}
+          RELEASE_RESULT: ${{ job.status }}
+          RELEASE_URL: https://github.com/${{ github.repository }}/releases/tag/${{ steps.prepare.outputs.tag-name }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          text="SuperBotGo Go SDK ${VERSION:-unknown} release ${RELEASE_RESULT}: ${RELEASE_URL}"
+          payload="$(jq -n \
+            --arg text "$text" \
+            --arg component "go-sdk" \
+            --arg version "${VERSION:-unknown}" \
+            --arg tag "${TAG_NAME:-unknown}" \
+            --arg status "$RELEASE_RESULT" \
+            --arg release_url "$RELEASE_URL" \
+            --arg run_url "$RUN_URL" \
+            '{text: $text, component: $component, version: $version, tag: $tag, status: $status, release_url: $release_url, run_url: $run_url}')"
+
+          curl -fsS \
+            -H "content-type: application/json" \
+            -d "$payload" \
+            "$RELEASE_WEBHOOK_URL"
