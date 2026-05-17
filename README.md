@@ -1,32 +1,32 @@
 # SuperBotGo SDK
 
-SDK repository for SuperBotGo plugins.
+Репозиторий SDK для плагинов SuperBotGo.
 
-## Layout
+## Структура
 
-- `protocol/` - versioned WASM plugin wire protocol, schemas, fixtures, and conformance tests.
-- `go-sdk/` - Go SDK for building WASM plugins.
+- `protocol/` - версионированный протокол обмена данными для WASM-плагинов, схемы, фикстуры и тесты совместимости.
+- `go-sdk/` - Go SDK для создания WASM-плагинов.
 
-## Releases
+## Релизы
 
-Protocol and language SDKs are released with separate tag prefixes:
+Протокол и языковые SDK выпускаются с отдельными префиксами тегов:
 
-- `protocol/v4.0.0` for the wire contract.
-- `go-sdk/v0.4.1` for the Go SDK module.
+- `protocol/v4.0.0` для контракта обмена данными.
+- `go-sdk/v0.4.1` для модуля Go SDK.
 
 ### Go SDK
 
-Go SDK releases are created from GitHub Actions:
+Релизы Go SDK создаются через GitHub Actions:
 
-1. Open `Actions` -> `Release Go SDK`.
-2. Run the workflow with `version`, for example `0.4.1`.
-3. The workflow validates the protocol and Go SDK, creates tag `go-sdk/v0.4.1`, and publishes the GitHub Release.
+1. Откройте `Actions` -> `Release Go SDK`.
+2. Запустите workflow с параметром `version`, например `0.4.1`.
+3. Workflow проверяет протокол и Go SDK, создает тег `go-sdk/v0.4.1` и публикует GitHub Release.
 
-Use the optional `prerelease` flag for versions like `0.4.1-rc.1`.
+Используйте необязательный флаг `prerelease` для версий вроде `0.4.1-rc.1`.
 
-### Protocol
+### Протокол
 
-Protocol releases are still tag-based:
+Релизы протокола по-прежнему создаются через теги:
 
 ```bash
 git tag protocol/v4.0.0
