@@ -153,6 +153,29 @@ Current host imports include:
 - `sql_open`, `sql_close`, `sql_exec`, `sql_query`, `sql_next`,
   `sql_rows_close`, `sql_begin`, `sql_end`
 - `file_meta`, `file_read`, `file_read_into`, `file_url`, `file_store`
+- `user_info`
+
+### `user_info`
+
+Requires plugin requirement type `user_info`.
+
+Request (msgpack):
+
+```
+{ "user_id": int64 }
+```
+
+Response (msgpack):
+
+```
+{ "id": int64, "full_name": string }
+```
+
+Returns basic information about a global user by their internal ID. Currently
+only `full_name` is populated; the response struct is designed to grow over
+time. `full_name` is derived from the university `persons` record (last name +
+first name + middle name) when available, otherwise falls back to the messenger
+username. Returns an error if the user is not found.
 
 Host-call payload schemas are not yet the source of truth in this directory;
 this first contract layer covers the JSON lifecycle messages. The host-call ABI
