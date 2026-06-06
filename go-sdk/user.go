@@ -11,13 +11,6 @@ type userInfoReq struct {
 	UserID int64 `msgpack:"user_id"`
 }
 
-// UserInfo contains basic information about a user.
-// The struct is intentionally minimal and will grow over time.
-type UserInfo struct {
-	ID       int64  `msgpack:"id" json:"id"`
-	FullName string `msgpack:"full_name,omitempty" json:"full_name,omitempty"`
-}
-
 // GetUserInfo fetches information about a user by their global user ID.
 func GetUserInfo(userID int64) (*UserInfo, error) {
 	if userID <= 0 {
