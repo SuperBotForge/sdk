@@ -220,6 +220,11 @@ func File(desc string) *RequirementBuilder {
 	return &RequirementBuilder{r: Requirement{Type: "file", Description: desc}}
 }
 
+// UserInfoReq declares a requirement for fetching user information via GetUserInfo.
+func UserInfoReq(desc string) *RequirementBuilder {
+	return &RequirementBuilder{r: Requirement{Type: "user_info", Description: desc}}
+}
+
 // configStore holds the parsed plugin configuration (set during configure action,
 // passed to handlers via PLUGIN_CONFIG env var).
 var configStore map[string]interface{}
