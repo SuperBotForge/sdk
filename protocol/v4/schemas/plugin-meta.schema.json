@@ -192,7 +192,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["database", "http", "kv", "notify", "events", "plugin", "file"]
+          "enum": ["database", "http", "kv", "notify", "events", "plugin", "file", "user_info"]
         },
         "description": { "type": "string" },
         "name": { "type": "string" },
