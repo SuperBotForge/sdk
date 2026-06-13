@@ -11,24 +11,24 @@
 
 Протокол и языковые SDK выпускаются с отдельными префиксами тегов:
 
-- `protocol/v4.0.0` для контракта обмена данными.
-- `go-sdk/v0.4.1` для модуля Go SDK.
+- `protocol/v4.0.1` для контракта обмена данными.
+- `go-sdk/v0.4.2` для модуля Go SDK.
 
 ### Go SDK
 
 Релизы Go SDK создаются через GitHub Actions:
 
 1. Откройте `Actions` -> `Release Go SDK`.
-2. Запустите workflow с параметром `version`, например `0.4.1`.
-3. Workflow проверяет протокол и Go SDK, создает тег `go-sdk/v0.4.1` и публикует GitHub Release.
+2. Запустите workflow с параметром `version`, например `0.4.2`.
+3. Workflow проверяет протокол и Go SDK, создает тег `go-sdk/v0.4.2` и публикует GitHub Release.
 
-Используйте необязательный флаг `prerelease` для версий вроде `0.4.1-rc.1`.
+Используйте необязательный флаг `prerelease` для версий вроде `0.4.2-rc.1`.
 
 ### Протокол
 
 Релизы протокола по-прежнему создаются через теги:
 
 ```bash
-git tag protocol/v4.0.0
-git push origin protocol/v4.0.0
+git tag protocol/v4.0.1
+git push origin protocol/v4.0.1
 ```
