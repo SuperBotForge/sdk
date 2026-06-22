@@ -38,6 +38,7 @@ type MessengerData struct {
 	UserID      int64
 	ChannelType string
 	ChatID      string
+	ChatGroupID string // non-empty when the chat belongs to a cross-messenger group
 	CommandName string
 	Params      map[string]string
 	Locale      string

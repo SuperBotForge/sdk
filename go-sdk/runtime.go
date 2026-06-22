@@ -387,6 +387,7 @@ func handleEvent(p Plugin) {
 				UserID:      m.UserID,
 				ChannelType: m.ChannelType,
 				ChatID:      m.ChatID,
+				ChatGroupID: m.ChatGroupID,
 				CommandName: m.CommandName,
 				Params:      m.Params,
 				Locale:      m.Locale,

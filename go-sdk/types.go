@@ -180,6 +180,7 @@ type messengerTriggerData struct {
 	UserID      int64             `json:"user_id"`
 	ChannelType string            `json:"channel_type"`
 	ChatID      string            `json:"chat_id"`
+	ChatGroupID string            `json:"chat_group_id,omitempty"`
 	CommandName string            `json:"command_name"`
 	Params      map[string]string `json:"params"`
 	Locale      string            `json:"locale"`
