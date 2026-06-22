@@ -63,6 +63,7 @@
         "user_id": { "type": "integer" },
         "channel_type": { "type": "string" },
         "chat_id": { "type": "string" },
+        "chat_group_id": { "type": "string" },
         "command_name": { "type": "string" },
         "params": { "$ref": "common.schema.json#/$defs/stringMap" },
         "locale": { "type": "string" },
