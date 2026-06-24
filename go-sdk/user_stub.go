@@ -22,3 +22,11 @@ func GetUsersInfo(userIDs []int64) ([]UserInfoFull, error) {
 func (ctx *EventContext) GetUsersInfo(userIDs []int64) ([]UserInfoFull, error) {
 	return GetUsersInfo(userIDs)
 }
+
+func ListUsers(page, pageSize int) ([]UserInfoFull, int, error) {
+	return nil, 0, fmt.Errorf("ListUsers is only available in WASM")
+}
+
+func (ctx *EventContext) ListUsers(page, pageSize int) ([]UserInfoFull, int, error) {
+	return ListUsers(page, pageSize)
+}
