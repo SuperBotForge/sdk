@@ -173,6 +173,7 @@ Response (msgpack):
   "full_name": string,
   "external_id": string,
   "tsu_accounts_id": string,
+  "tsu_linked": bool,
   "is_teacher": bool
 }
 ```
@@ -182,9 +183,9 @@ is derived from the university `persons` record (last name + first name +
 middle name) when available, otherwise falls back to the messenger username.
 `external_id` is the university student/employee ID. `tsu_accounts_id` is the
 TSU OAuth account identifier from `global_users.tsu_accounts_id`, empty if the
-user has not linked their TSU account. `is_teacher` is `true` when the user has
-an active record in `teacher_positions`. Returns an error if the user is not
-found.
+user has not linked their TSU account. `tsu_linked` is `true` when
+`tsu_accounts_id` is non-empty. `is_teacher` is `true` when the user has an
+active record in `teacher_positions`. Returns an error if the user is not found.
 
 ### `users_info`
 
@@ -206,6 +207,7 @@ Response (msgpack):
       "full_name": string,
       "external_id": string,
       "tsu_accounts_id": string,
+      "tsu_linked": bool,
       "is_teacher": bool,
       "positions": [
         {
@@ -214,10 +216,12 @@ Response (msgpack):
           "nationality_type": string,
           "funding_type": string,
           "education_form": string,
-          "group_code": string,
-          "group_name": string,
+          "faculty_name": string,
+          "department_name": string,
           "program_name": string,
-          "stream_name": string
+          "stream_name": string,
+          "group_code": string,
+          "group_name": string
         }
       ]
     }
