@@ -153,7 +153,7 @@ Current host imports include:
 - `sql_open`, `sql_close`, `sql_exec`, `sql_query`, `sql_next`,
   `sql_rows_close`, `sql_begin`, `sql_end`
 - `file_meta`, `file_read`, `file_read_into`, `file_url`, `file_store`
-- `user_info`
+- `user_info`, `users_info`
 
 ### `user_info`
 
@@ -168,14 +168,64 @@ Request (msgpack):
 Response (msgpack):
 
 ```
-{ "id": int64, "full_name": string }
+{
+  "id": int64,
+  "full_name": string,
+  "external_id": string,
+  "is_teacher": bool
+}
 ```
 
-Returns basic information about a global user by their internal ID. Currently
-only `full_name` is populated; the response struct is designed to grow over
-time. `full_name` is derived from the university `persons` record (last name +
-first name + middle name) when available, otherwise falls back to the messenger
-username. Returns an error if the user is not found.
+Returns basic information about a global user by their internal ID. `full_name`
+is derived from the university `persons` record (last name + first name +
+middle name) when available, otherwise falls back to the messenger username.
+`external_id` is the university student/employee ID. `is_teacher` is `true`
+when the user has an active record in `teacher_positions`. Returns an error if
+the user is not found.
+
+### `users_info`
+
+Requires plugin requirement type `user_info`.
+
+Request (msgpack):
+
+```
+{ "user_ids": []int64 }
+```
+
+Response (msgpack):
+
+```
+{
+  "users": [
+    {
+      "id": int64,
+      "full_name": string,
+      "external_id": string,
+      "is_teacher": bool,
+      "positions": [
+        {
+          "position_type": string,
+          "status": string,
+          "nationality_type": string,
+          "funding_type": string,
+          "education_form": string,
+          "group_code": string,
+          "group_name": string,
+          "program_name": string,
+          "stream_name": string
+        }
+      ]
+    }
+  ]
+}
+```
+
+Returns information for multiple users in a single call. Each entry includes the
+same fields as `user_info` plus a `positions` list. Currently only student
+positions (`position_type = "student"`) are returned, one entry per active
+`student_positions` record. A user with no positions receives an empty
+`positions` array. Users not found in the database are omitted from the result.
 
 Host-call payload schemas are not yet the source of truth in this directory;
 this first contract layer covers the JSON lifecycle messages. The host-call ABI
