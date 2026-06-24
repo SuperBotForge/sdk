@@ -30,6 +30,8 @@ func Run(p Plugin) {
 		handleStepCallback(p)
 	case "migrate":
 		handleMigrate(p)
+	case "check_visibility":
+		handleCheckVisibility(p)
 	default:
 		writeEventResponse(eventResponseJSON{Error: "unknown action: " + action})
 	}
@@ -42,6 +44,7 @@ func handleMeta(p Plugin) {
 		Version:             p.Version,
 		SDKVersion:          ProtocolVersion,
 		SupportsReconfigure: p.OnReconfigure != nil,
+		SupportsVisibility:  p.CheckVisibility != nil,
 	}
 
 	var dbFields []DatabaseField
@@ -548,5 +551,35 @@ func writeEventResponse(v eventResponseJSON) {
 
 func writeCallbackResponse(v stepCallbackResponse) {
 	data, _ := json.Marshal(v)
+	os.Stdout.Write(data)
+}
+
+type visibilityRequest struct {
+	UserID int64 `json:"user_id"`
+}
+
+type visibilityResponse struct {
+	Visible []string `json:"visible"`
+}
+
+func handleCheckVisibility(p Plugin) {
+	data, _ := io.ReadAll(os.Stdin)
+	var req visibilityRequest
+	if len(data) > 0 {
+		_ = json.Unmarshal(data, &req)
+	}
+
+	if p.CheckVisibility == nil {
+		names := make([]string, 0, len(p.Triggers))
+		for _, t := range p.Triggers {
+			names = append(names, t.Name)
+		}
+		data, _ := json.Marshal(visibilityResponse{Visible: names})
+		os.Stdout.Write(data)
+		return
+	}
+
+	visible := p.CheckVisibility(&VisibilityContext{UserID: req.UserID})
+	data, _ = json.Marshal(visibilityResponse{Visible: visible})
 	os.Stdout.Write(data)
 }

@@ -8,6 +8,7 @@ type pluginMeta struct {
 	Version             string           `json:"version"`
 	SDKVersion          int              `json:"sdk_version"`
 	SupportsReconfigure bool             `json:"supports_reconfigure,omitempty"`
+	SupportsVisibility  bool             `json:"supports_visibility,omitempty"`
 	RPCMethods          []rpcMethodDef   `json:"rpc_methods,omitempty"`
 	Triggers            []triggerDef     `json:"triggers,omitempty"`
 	Requirements        []requirementDef `json:"requirements,omitempty"`

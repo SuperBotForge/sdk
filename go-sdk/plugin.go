@@ -64,6 +64,11 @@ type Plugin struct {
 	// their own Handler. If a Trigger has a Handler, it takes priority.
 	OnEvent func(ctx *EventContext) error
 
+	// CheckVisibility is called by the host when building the plugin command
+	// menu for a specific user. Return the list of trigger names that should
+	// be visible to that user. If nil, all triggers are visible.
+	CheckVisibility func(ctx *VisibilityContext) []string
+
 	// Migrate is called when the host detects a version change during plugin
 	// reload. The handler receives a MigrateContext with the old and new
 	// version strings plus access to the KV store for data transformation.
@@ -223,6 +228,12 @@ func File(desc string) *RequirementBuilder {
 // UserInfoReq declares a requirement for fetching user information via GetUserInfo.
 func UserInfoReq(desc string) *RequirementBuilder {
 	return &RequirementBuilder{r: Requirement{Type: "user_info", Description: desc}}
+}
+
+// VisibilityContext is passed to CheckVisibility to determine which commands
+// are visible to a specific user.
+type VisibilityContext struct {
+	UserID int64
 }
 
 // configStore holds the parsed plugin configuration (set during configure action,
