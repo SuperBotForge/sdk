@@ -14,3 +14,11 @@ func GetUserInfo(userID int64) (*UserInfo, error) {
 func (ctx *EventContext) GetUserInfo(userID int64) (*UserInfo, error) {
 	return GetUserInfo(userID)
 }
+
+func GetUsersInfo(userIDs []int64) ([]UserInfoFull, error) {
+	return nil, fmt.Errorf("GetUsersInfo is only available in WASM")
+}
+
+func (ctx *EventContext) GetUsersInfo(userIDs []int64) ([]UserInfoFull, error) {
+	return GetUsersInfo(userIDs)
+}
