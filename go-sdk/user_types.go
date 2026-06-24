@@ -6,8 +6,10 @@ type UserInfo struct {
 	FullName      string `msgpack:"full_name,omitempty" json:"full_name,omitempty"`
 	ExternalID    string `msgpack:"external_id,omitempty" json:"external_id,omitempty"`
 	TsuAccountsID string `msgpack:"tsu_accounts_id,omitempty" json:"tsu_accounts_id,omitempty"`
-	TsuLinked     bool   `msgpack:"tsu_linked,omitempty" json:"tsu_linked,omitempty"`
-	IsTeacher     bool   `msgpack:"is_teacher,omitempty" json:"is_teacher,omitempty"`
+	TsuLinked    bool `msgpack:"tsu_linked,omitempty" json:"tsu_linked,omitempty"`
+	IsTeacher    bool `msgpack:"is_teacher,omitempty" json:"is_teacher,omitempty"`
+	IsStudent    bool `msgpack:"is_student,omitempty" json:"is_student,omitempty"`
+	IsDeanOffice bool `msgpack:"is_dean_office,omitempty" json:"is_dean_office,omitempty"`
 }
 
 // UserPosition holds one position (student/teacher) for a user.
