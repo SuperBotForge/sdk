@@ -14,6 +14,7 @@
       "const": 4
     },
     "supports_reconfigure": { "type": "boolean" },
+    "supports_visibility": { "type": "boolean" },
     "rpc_methods": {
       "type": "array",
       "items": { "$ref": "#/$defs/rpcMethod" }
