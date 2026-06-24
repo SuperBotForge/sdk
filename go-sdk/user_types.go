@@ -6,6 +6,7 @@ type UserInfo struct {
 	FullName      string `msgpack:"full_name,omitempty" json:"full_name,omitempty"`
 	ExternalID    string `msgpack:"external_id,omitempty" json:"external_id,omitempty"`
 	TsuAccountsID string `msgpack:"tsu_accounts_id,omitempty" json:"tsu_accounts_id,omitempty"`
+	TsuLinked     bool   `msgpack:"tsu_linked,omitempty" json:"tsu_linked,omitempty"`
 	IsTeacher     bool   `msgpack:"is_teacher,omitempty" json:"is_teacher,omitempty"`
 }
 
@@ -16,10 +17,12 @@ type UserPosition struct {
 	NationalityType string `msgpack:"nationality_type,omitempty" json:"nationality_type,omitempty"`
 	FundingType     string `msgpack:"funding_type,omitempty" json:"funding_type,omitempty"`
 	EducationForm   string `msgpack:"education_form,omitempty" json:"education_form,omitempty"`
-	GroupCode       string `msgpack:"group_code,omitempty" json:"group_code,omitempty"`
-	GroupName       string `msgpack:"group_name,omitempty" json:"group_name,omitempty"`
+	FacultyName     string `msgpack:"faculty_name,omitempty" json:"faculty_name,omitempty"`
+	DepartmentName  string `msgpack:"department_name,omitempty" json:"department_name,omitempty"`
 	ProgramName     string `msgpack:"program_name,omitempty" json:"program_name,omitempty"`
 	StreamName      string `msgpack:"stream_name,omitempty" json:"stream_name,omitempty"`
+	GroupCode       string `msgpack:"group_code,omitempty" json:"group_code,omitempty"`
+	GroupName       string `msgpack:"group_name,omitempty" json:"group_name,omitempty"`
 }
 
 // UserInfoFull extends UserInfo with university positions.
