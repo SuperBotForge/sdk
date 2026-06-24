@@ -172,6 +172,7 @@ Response (msgpack):
   "id": int64,
   "full_name": string,
   "external_id": string,
+  "tsu_accounts_id": string,
   "is_teacher": bool
 }
 ```
@@ -179,9 +180,11 @@ Response (msgpack):
 Returns basic information about a global user by their internal ID. `full_name`
 is derived from the university `persons` record (last name + first name +
 middle name) when available, otherwise falls back to the messenger username.
-`external_id` is the university student/employee ID. `is_teacher` is `true`
-when the user has an active record in `teacher_positions`. Returns an error if
-the user is not found.
+`external_id` is the university student/employee ID. `tsu_accounts_id` is the
+TSU OAuth account identifier from `global_users.tsu_accounts_id`, empty if the
+user has not linked their TSU account. `is_teacher` is `true` when the user has
+an active record in `teacher_positions`. Returns an error if the user is not
+found.
 
 ### `users_info`
 
@@ -202,6 +205,7 @@ Response (msgpack):
       "id": int64,
       "full_name": string,
       "external_id": string,
+      "tsu_accounts_id": string,
       "is_teacher": bool,
       "positions": [
         {
