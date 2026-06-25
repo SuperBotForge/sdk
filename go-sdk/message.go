@@ -31,6 +31,13 @@ type msgBlock struct {
 	Caption string            `json:"caption,omitempty" msgpack:"caption,omitempty"`
 	URL     string            `json:"url,omitempty" msgpack:"url,omitempty"`
 	Label   string            `json:"label,omitempty" msgpack:"label,omitempty"`
+	Prompt  string            `json:"prompt,omitempty" msgpack:"prompt,omitempty"`
+	Options []msgBlockOpt     `json:"options,omitempty" msgpack:"options,omitempty"`
+}
+
+type msgBlockOpt struct {
+	Label string `json:"label" msgpack:"label"`
+	Value string `json:"value" msgpack:"value"`
 }
 
 // NewMessage creates a Message with a single plain text block.
@@ -91,6 +98,18 @@ func (m Message) Link(url, label string) Message {
 // Image appends an image block.
 func (m Message) Image(url string) Message {
 	m.blocks = append(m.blocks, msgBlock{Type: "image", URL: url})
+	return m
+}
+
+// Options appends an inline-keyboard block to the message.
+// Each Option becomes a button; clicking it sends Option.Value as input.
+// If Value starts with "/" the platform treats the click as a command trigger.
+func (m Message) Options(prompt string, opts ...Option) Message {
+	block := msgBlock{Type: "options", Prompt: prompt}
+	for _, o := range opts {
+		block.Options = append(block.Options, msgBlockOpt{Label: o.Label, Value: o.Value})
+	}
+	m.blocks = append(m.blocks, block)
 	return m
 }
 
