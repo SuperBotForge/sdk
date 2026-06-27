@@ -363,9 +363,9 @@ The plugin gets its own isolated SQL database. Use standard `database/sql`:
 
 ```go
 import "database/sql"
-import _ "github.com/SuperBotForge/sdk/go-sdk/sql" // register "superbot" driver
+import wasmplugin "github.com/SuperBotForge/sdk/go-sdk" // driver registers itself via init()
 
-db, err := sql.Open("superbot", "")        // default database
+db, err := sql.Open("superbot", "")          // default database
 db, err := sql.Open("superbot", "analytics") // named database
 ```
 
