@@ -57,6 +57,7 @@
           "type": "string",
           "enum": ["http", "cron", "event", "messenger"]
         },
+        "allow_back": { "type": "boolean" },
         "descriptions": { "$ref": "common.schema.json#/$defs/stringMap" },
         "description": { "type": "string" },
         "path": { "type": "string" },

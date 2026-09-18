@@ -105,6 +105,9 @@ type Trigger struct {
 	// branching, pagination, dynamic options, conditions).
 	Nodes []Node
 
+	// AllowBack enables host-managed Back buttons on every unfinished step.
+	AllowBack bool
+
 	// HTTP-specific.
 	Path    string   // e.g. "/webhook"
 	Methods []string // e.g. ["POST"]

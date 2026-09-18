@@ -65,6 +65,7 @@ func handleMeta(p Plugin) {
 
 	for _, t := range p.Triggers {
 		td := triggerDef{
+			AllowBack:    t.AllowBack,
 			Name:         t.Name,
 			Type:         t.Type,
 			Descriptions: t.Descriptions,
