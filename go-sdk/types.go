@@ -22,6 +22,7 @@ type rpcMethodDef struct {
 }
 
 type triggerDef struct {
+	AllowBack    bool              `json:"allow_back,omitempty"`
 	Name         string            `json:"name"`
 	Type         string            `json:"type"`
 	Descriptions map[string]string `json:"descriptions,omitempty"`
