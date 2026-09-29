@@ -209,8 +209,9 @@ func (s *StepBuilder) toNodeDef(cmdName string, reg callbackMap) nodeDef {
 		case "dynamic_options":
 			if b.promptsFn != nil {
 				bd.Prompts = b.promptsFn
+			} else {
+				bd.Prompts = b.prompts
 			}
-			else bd.Prompts = b.prompts
 			if b.optionsFn != nil {
 				cbName := cmdName + ":options:" + s.param
 				reg[cbName] = b.optionsFn
