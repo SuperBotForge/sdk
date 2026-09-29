@@ -145,7 +145,7 @@ func (s *StepBuilder) LocalizedPaginatedOptions(prompts map[string]string, pageS
 }
 
 func (s *StepBuilder) LocalizedDynamicFunctionOptions(prompts func(ctx *CallbackContext) map[string]string, provider func(ctx *CallbackContext) []Option) *StepBuilder {
-	s.blocks = append(s.blocks, block{typ: "dynamic_options", promptsFn: res, optionsFn: provider})
+	s.blocks = append(s.blocks, block{typ: "dynamic_options", promptsFn: prompts, optionsFn: provider})
 	return s
 }
 
@@ -208,9 +208,7 @@ func (s *StepBuilder) toNodeDef(cmdName string, reg callbackMap) nodeDef {
 			}
 		case "dynamic_options":
 			if b.promptsFn != nil {
-				cbName := cmdName + ":prompts:" + s.param
-				reg[cbName] = b.promptsFn
-				bd.PromptsFn = cbName
+				//bd.PromptsFn = b.promptsFn
 			} else {
 				bd.Prompts = b.prompts
 			}
