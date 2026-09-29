@@ -64,6 +64,7 @@ type block struct {
 	texts     map[string]string
 	style     TextStyle
 	prompts   map[string]string
+	promptsFn func(ctx *CallbackContext) map[string]string
 	options   []Option
 	optionsFn func(ctx *CallbackContext) []Option
 	url       string
@@ -143,6 +144,11 @@ func (s *StepBuilder) LocalizedPaginatedOptions(prompts map[string]string, pageS
 	return s
 }
 
+func (s *StepBuilder) LocalizedDynamicOptions(prompts func(ctx *CallbackContext) map[string]string, provider func(ctx *CallbackContext) []Option) *StepBuilder {
+	s.blocks = append(s.blocks, block{typ: "dynamic_options", promptsFn: prompts, optionsFn: provider})
+	return s
+}
+
 // Link adds a hyperlink block.
 func (s *StepBuilder) Link(url, label string) *StepBuilder {
 	s.blocks = append(s.blocks, block{typ: "link", url: url, label: label})
@@ -201,7 +207,10 @@ func (s *StepBuilder) toNodeDef(cmdName string, reg callbackMap) nodeDef {
 				bd.Options = append(bd.Options, optionDef{Label: o.Label, Labels: o.Labels, Value: o.Value})
 			}
 		case "dynamic_options":
-			bd.Prompts = b.prompts
+			if b.promptsFn != nil {
+				bd.Prompts = b.promptsFn
+			}
+			else bd.Prompts = b.prompts
 			if b.optionsFn != nil {
 				cbName := cmdName + ":options:" + s.param
 				reg[cbName] = b.optionsFn
