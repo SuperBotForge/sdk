@@ -64,7 +64,7 @@ type block struct {
 	texts     map[string]string
 	style     TextStyle
 	prompts   map[string]string
-	promptsFn func(ctx *CallbackContext) map[string]string
+	promptsFn   func(ctx *CallbackContext) map[string]string
 	options   []Option
 	optionsFn func(ctx *CallbackContext) []Option
 	url       string
@@ -144,8 +144,8 @@ func (s *StepBuilder) LocalizedPaginatedOptions(prompts map[string]string, pageS
 	return s
 }
 
-func (s *StepBuilder) LocalizedDynamicOptions(prompts func(ctx *CallbackContext) map[string]string, provider func(ctx *CallbackContext) []Option) *StepBuilder {
-	s.blocks = append(s.blocks, block{typ: "dynamic_options", promptsFn: prompts, optionsFn: provider})
+func (s *StepBuilder) LocalizedDynamicFunctionOptions(prompts func(ctx *CallbackContext) map[string]string, provider func(ctx *CallbackContext) []Option) *StepBuilder {
+	s.blocks = append(s.blocks, block{typ: "dynamic_options", promptsFn: res, optionsFn: provider})
 	return s
 }
 
@@ -208,7 +208,9 @@ func (s *StepBuilder) toNodeDef(cmdName string, reg callbackMap) nodeDef {
 			}
 		case "dynamic_options":
 			if b.promptsFn != nil {
-				bd.Prompts = b.promptsFn
+				cbName := cmdName + ":prompts:" + s.param
+				reg[cbName] = b.promptsFn
+				bd.PromptsFn = cbName
 			} else {
 				bd.Prompts = b.prompts
 			}
