@@ -60,11 +60,11 @@ type Node interface {
 }
 
 type block struct {
+	promptsFn func(*CallbackContext) map[string]string
 	typ       string // "text", "options", "dynamic_options", "link", "image"
 	texts     map[string]string
 	style     TextStyle
 	prompts   map[string]string
-	promptsFn   func(ctx *CallbackContext) map[string]string
 	options   []Option
 	optionsFn func(ctx *CallbackContext) []Option
 	url       string
@@ -96,6 +96,23 @@ func NewStep(param string) *StepBuilder {
 // Text adds a styled text block.
 func (s *StepBuilder) Text(text string, style TextStyle) *StepBuilder {
 	s.blocks = append(s.blocks, block{typ: "text", texts: map[string]string{"en": text}, style: style})
+	return s
+}
+
+// PromptsFn sets a runtime localized text provider on the last Text, Options or
+// DynamicOptions block. The existing localized text remains the error fallback.
+// Call it immediately after the block to configure. Nil restores static text.
+func (s *StepBuilder) PromptsFn(fn func(*CallbackContext) map[string]string) *StepBuilder {
+	if len(s.blocks) == 0 {
+		panic("PromptsFn requires a preceding text or options block")
+	}
+	b := &s.blocks[len(s.blocks)-1]
+	switch b.typ {
+	case "text", "options", "dynamic_options":
+		b.promptsFn = fn
+	default:
+		panic("PromptsFn supports text and options blocks only")
+	}
 	return s
 }
 
@@ -141,11 +158,6 @@ func (s *StepBuilder) LocalizedDynamicOptions(prompts map[string]string, provide
 // LocalizedPaginatedOptions adds paginated options with a localized prompt.
 func (s *StepBuilder) LocalizedPaginatedOptions(prompts map[string]string, pageSize int, provider func(ctx *CallbackContext) OptionsPage) *StepBuilder {
 	s.pagination = &paginationCfg{prompts: prompts, pageSize: pageSize, provider: provider}
-	return s
-}
-
-func (s *StepBuilder) LocalizedDynamicFunctionOptions(prompts func(ctx *CallbackContext) map[string]string, provider func(ctx *CallbackContext) []Option) *StepBuilder {
-	s.blocks = append(s.blocks, block{typ: "dynamic_options", promptsFn: prompts, optionsFn: provider})
 	return s
 }
 
@@ -195,8 +207,13 @@ func (s *StepBuilder) toNodeDef(cmdName string, reg callbackMap) nodeDef {
 		Validation: s.validation,
 	}
 
-	for _, b := range s.blocks {
+	for blockIndex, b := range s.blocks {
 		bd := blockDef{Type: b.typ}
+		if b.promptsFn != nil {
+			cbName := cmdName + ":prompts:" + s.param + ":" + strconv.Itoa(blockIndex)
+			reg[cbName] = b.promptsFn
+			bd.PromptsFn = cbName
+		}
 		switch b.typ {
 		case "text":
 			bd.Texts = b.texts
@@ -207,11 +224,7 @@ func (s *StepBuilder) toNodeDef(cmdName string, reg callbackMap) nodeDef {
 				bd.Options = append(bd.Options, optionDef{Label: o.Label, Labels: o.Labels, Value: o.Value})
 			}
 		case "dynamic_options":
-			if b.promptsFn != nil {
-				//bd.PromptsFn = b.promptsFn
-			} else {
-				bd.Prompts = b.prompts
-			}
+			bd.Prompts = b.prompts
 			if b.optionsFn != nil {
 				cbName := cmdName + ":options:" + s.param
 				reg[cbName] = b.optionsFn

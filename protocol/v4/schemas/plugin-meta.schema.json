@@ -156,6 +156,7 @@
           "items": { "$ref": "common.schema.json#/$defs/option" }
         },
         "options_fn": { "type": "string" },
+        "prompts_fn": { "type": "string" },
         "url": { "type": "string" },
         "label": { "type": "string" }
       }

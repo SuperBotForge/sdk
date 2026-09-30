@@ -523,6 +523,9 @@ func handleStepCallback(p Plugin) {
 	}
 
 	switch fn := cb.(type) {
+	case func(*CallbackContext) map[string]string:
+		prompts := fn(ctx)
+		writeCallbackResponse(stepCallbackResponse{Prompts: prompts})
 	case func(ctx *CallbackContext) bool:
 		result := fn(ctx)
 		writeCallbackResponse(stepCallbackResponse{Result: &result})

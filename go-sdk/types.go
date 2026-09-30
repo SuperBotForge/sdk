@@ -76,6 +76,7 @@ type nodeDef struct {
 }
 
 type blockDef struct {
+	PromptsFn string            `json:"prompts_fn,omitempty"`
 	Type      string            `json:"type"`                 // "text", "options", "dynamic_options", "link", "image"
 	Texts     map[string]string `json:"texts,omitempty"`      // text: localized
 	Style     string            `json:"style,omitempty"`      // text
@@ -147,10 +148,11 @@ type stepCallbackRequest struct {
 }
 
 type stepCallbackResponse struct {
-	Options []optionDef `json:"options,omitempty"`
-	HasMore bool        `json:"has_more,omitempty"`
-	Result  *bool       `json:"result,omitempty"`
-	Error   string      `json:"error,omitempty"`
+	Prompts map[string]string `json:"prompts,omitempty"`
+	Options []optionDef       `json:"options,omitempty"`
+	HasMore bool              `json:"has_more,omitempty"`
+	Result  *bool             `json:"result,omitempty"`
+	Error   string            `json:"error,omitempty"`
 }
 
 type eventRequest struct {

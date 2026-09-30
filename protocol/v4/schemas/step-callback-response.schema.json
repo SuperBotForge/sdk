@@ -5,6 +5,7 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "prompts": { "type": "object", "additionalProperties": { "type": "string" } },
     "options": {
       "type": "array",
       "items": { "$ref": "common.schema.json#/$defs/option" }
