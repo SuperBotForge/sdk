@@ -233,8 +233,7 @@ func (s *StepBuilder) toNodeDef(cmdName string, reg callbackMap) nodeDef {
 				cbName := cmdName + ":prompts:" + s.param + ":" + strconv.Itoa(blockIndex)
 				reg[cbName] = b.promptsFn
 				bd.PromptsFn = cbName
-			}
-			else {bd.Prompts = b.prompts}
+			} else {bd.Prompts = b.prompts}
 			if b.optionsFn != nil {
 				cbName := cmdName + ":options:" + s.param
 				reg[cbName] = b.optionsFn
